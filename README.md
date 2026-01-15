@@ -458,7 +458,7 @@ Bu proje **özel**dir ve halka açık kullanım için lisanslanmamıştır.
 
 ## 👤 Geliştirici
 
-Angular 19 ile ❤️ ile geliştirildi
+Angular 19 ve ❤️ ile geliştirildi
 
 ---
 
