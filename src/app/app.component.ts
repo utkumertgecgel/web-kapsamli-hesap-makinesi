@@ -1,6 +1,6 @@
 /**
- * Ana Uygulama Bileşeni
- * Hesap makinesi modları arasında geçiş yapan ana kabuk
+ * Ana Uygulama Bileşeni - v2.0
+ * 7 farklı hesap makinesi modu
  * Material toolbar, tabs ve tema geçişi
  */
 import { Component, inject } from '@angular/core';
@@ -10,12 +10,22 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { ThemeService } from './core/services';
 import { StandardCalculatorComponent } from './features/standard-calculator/standard-calculator.component';
 import { ScientificCalculatorComponent } from './features/scientific-calculator/scientific-calculator.component';
 import { AdvancedCalculatorComponent } from './features/advanced-calculator/advanced-calculator.component';
+import { ProgrammerCalculatorComponent } from './features/programmer-calculator/programmer-calculator.component';
+import { FinancialCalculatorComponent } from './features/financial-calculator/financial-calculator.component';
+import { UnitConverterComponent } from './features/unit-converter/unit-converter.component';
+import { GraphCalculatorComponent } from './features/graph-calculator/graph-calculator.component';
+
+interface Tab {
+  label: string;
+  icon: string;
+  component: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -27,24 +37,38 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
-    MatSlideToggleModule,
+    MatMenuModule,
     StandardCalculatorComponent,
     ScientificCalculatorComponent,
-    AdvancedCalculatorComponent
+    AdvancedCalculatorComponent,
+    ProgrammerCalculatorComponent,
+    FinancialCalculatorComponent,
+    UnitConverterComponent,
+    GraphCalculatorComponent
   ],
   template: `
     <div class="app-container" [class.dark-mode]="themeService.isDark()">
       <!-- Üst Toolbar -->
-      <mat-toolbar class="app-toolbar" color="primary">
+      <mat-toolbar class="app-toolbar">
         <div class="toolbar-content">
           <div class="brand">
             <mat-icon class="logo-icon">calculate</mat-icon>
             <span class="app-title">Hesap Makinesi</span>
-            <span class="app-subtitle">Pro</span>
+            <span class="app-subtitle">PRO</span>
+            <span class="version-badge">v2.0</span>
           </div>
           
           <div class="toolbar-actions">
-            <!-- Tema Toggle -->
+            <!-- PWA Install Button - will be shown when available -->
+            <button 
+              mat-icon-button 
+              *ngIf="showInstallButton"
+              (click)="installPWA()"
+              matTooltip="Uygulamayı Yükle">
+              <mat-icon>install_mobile</mat-icon>
+            </button>
+
+            <!-- Theme Toggle -->
             <button 
               mat-icon-button 
               (click)="toggleTheme()"
@@ -52,6 +76,17 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
               aria-label="Toggle theme">
               <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
             </button>
+
+            <!-- More Options -->
+            <button mat-icon-button [matMenuTriggerFor]="moreMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #moreMenu="matMenu">
+              <button mat-menu-item disabled>
+                <mat-icon>info</mat-icon>
+                <span>Versiyon 2.0.0</span>
+              </button>
+            </mat-menu>
           </div>
         </div>
       </mat-toolbar>
@@ -60,50 +95,37 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
       <main class="main-content">
         <mat-tab-group 
           class="calculator-tabs"
-          animationDuration="300ms"
+          animationDuration="250ms"
           [selectedIndex]="selectedTab"
           (selectedIndexChange)="onTabChange($event)"
           mat-stretch-tabs="false"
           mat-align-tabs="center">
           
-          <!-- Standart Mod -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">dialpad</mat-icon>
-              <span class="tab-label">Standart</span>
-            </ng-template>
-            <div class="tab-content">
-              <app-standard-calculator></app-standard-calculator>
-            </div>
-          </mat-tab>
-
-          <!-- Bilimsel Mod -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">science</mat-icon>
-              <span class="tab-label">Bilimsel</span>
-            </ng-template>
-            <div class="tab-content">
-              <app-scientific-calculator></app-scientific-calculator>
-            </div>
-          </mat-tab>
-
-          <!-- Gelişmiş Mod -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">functions</mat-icon>
-              <span class="tab-label">Gelişmiş</span>
-            </ng-template>
-            <div class="tab-content">
-              <app-advanced-calculator></app-advanced-calculator>
-            </div>
-          </mat-tab>
+          @for (tab of tabs; track tab.component) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+                <span class="tab-label">{{ tab.label }}</span>
+              </ng-template>
+            </mat-tab>
+          }
         </mat-tab-group>
+
+        <!-- Tab Content -->
+        <div class="tab-content" [ngSwitch]="selectedTab">
+          <app-standard-calculator *ngSwitchCase="0"></app-standard-calculator>
+          <app-scientific-calculator *ngSwitchCase="1"></app-scientific-calculator>
+          <app-advanced-calculator *ngSwitchCase="2"></app-advanced-calculator>
+          <app-programmer-calculator *ngSwitchCase="3"></app-programmer-calculator>
+          <app-financial-calculator *ngSwitchCase="4"></app-financial-calculator>
+          <app-unit-converter *ngSwitchCase="5"></app-unit-converter>
+          <app-graph-calculator *ngSwitchCase="6"></app-graph-calculator>
+        </div>
       </main>
 
       <!-- Alt Bilgi -->
       <footer class="app-footer">
-        <span>Angular 19 • Material Design • Signals</span>
+        <span>Angular 19 • Material Design 3 • PWA Ready</span>
       </footer>
     </div>
   `,
@@ -163,15 +185,23 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
       letter-spacing: 1px;
     }
 
+    .version-badge {
+      font-size: 0.625rem;
+      background: #38ef7d;
+      color: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
     .toolbar-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
     }
 
     .main-content {
       flex: 1;
-      padding: 24px 16px;
       max-width: 1200px;
       margin: 0 auto;
       width: 100%;
@@ -180,31 +210,47 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
 
     .calculator-tabs {
       background: var(--calc-card-bg, rgba(255, 255, 255, 0.95));
-      border-radius: 20px;
-      box-shadow: 
-        0 10px 40px rgba(0, 0, 0, 0.1),
-        0 4px 12px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       backdrop-filter: blur(10px);
+      margin: 16px;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+
+      ::ng-deep .mat-mdc-tab-header {
+        overflow-x: auto;
+        scrollbar-width: thin;
+
+        &::-webkit-scrollbar {
+          height: 3px;
+        }
+      }
     }
 
     .tab-icon {
-      margin-right: 8px;
+      margin-right: 6px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .tab-label {
       font-weight: 500;
+      font-size: 0.875rem;
     }
 
     .tab-content {
-      padding: 20px 0;
-      animation: fadeIn 0.3s ease;
+      background: var(--calc-card-bg, rgba(255, 255, 255, 0.95));
+      margin: 0 16px 16px;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding-bottom: 16px;
+      animation: fadeIn 0.25s ease;
     }
 
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
       }
       to {
         opacity: 1;
@@ -230,12 +276,12 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
     }
 
     /* Responsive */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .app-title {
         font-size: 1rem;
       }
 
-      .app-subtitle {
+      .app-subtitle, .version-badge {
         display: none;
       }
 
@@ -247,12 +293,18 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
         margin-right: 0;
       }
 
-      .main-content {
-        padding: 16px 8px;
+      .calculator-tabs, .tab-content {
+        margin: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .calculator-tabs {
+        border-radius: 16px 16px 0 0;
       }
 
-      .calculator-tabs {
-        border-radius: 16px;
+      .tab-content {
+        border-radius: 0 0 16px 16px;
       }
     }
   `]
@@ -260,6 +312,29 @@ import { AdvancedCalculatorComponent } from './features/advanced-calculator/adva
 export class AppComponent {
   readonly themeService = inject(ThemeService);
   selectedTab = 0;
+  showInstallButton = false;
+  private deferredPrompt: any;
+
+  tabs: Tab[] = [
+    { label: 'Standart', icon: 'dialpad', component: 'standard' },
+    { label: 'Bilimsel', icon: 'science', component: 'scientific' },
+    { label: 'Gelişmiş', icon: 'functions', component: 'advanced' },
+    { label: 'Programcı', icon: 'code', component: 'programmer' },
+    { label: 'Finans', icon: 'account_balance', component: 'financial' },
+    { label: 'Birim', icon: 'straighten', component: 'unit' },
+    { label: 'Grafik', icon: 'show_chart', component: 'graph' }
+  ];
+
+  constructor() {
+    // Listen for PWA install prompt
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeinstallprompt', (e: any) => {
+        e.preventDefault();
+        this.deferredPrompt = e;
+        this.showInstallButton = true;
+      });
+    }
+  }
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
@@ -267,5 +342,17 @@ export class AppComponent {
 
   onTabChange(index: number): void {
     this.selectedTab = index;
+  }
+
+  async installPWA(): Promise<void> {
+    if (!this.deferredPrompt) return;
+
+    this.deferredPrompt.prompt();
+    const { outcome } = await this.deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+      this.showInstallButton = false;
+    }
+    this.deferredPrompt = null;
   }
 }

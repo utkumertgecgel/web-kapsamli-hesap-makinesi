@@ -5,3 +5,5 @@ export * from './calculation-engine.service';
 export * from './calculator-state.service';
 export * from './storage.service';
 export * from './theme.service';
+export * from './i18n.service';
+
