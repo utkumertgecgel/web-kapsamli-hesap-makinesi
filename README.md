@@ -450,11 +450,6 @@ angular-calculator/
 
 ---
 
-## 📄 Lisans
-
-Bu proje **özel**dir ve halka açık kullanım için lisanslanmamıştır.
-
----
 
 ## 👤 Geliştirici
 
